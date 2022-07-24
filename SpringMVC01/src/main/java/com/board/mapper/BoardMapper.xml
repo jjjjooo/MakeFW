@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- 개발자가 오타를 낼 확률이 쿼리에 대해 높음 -->
+<!-- 네임스페이스는 맵퍼의 중복을 허용하기 위함, 겹칠 위험을 제거, 스프링이 네임스페이스를 참조하기 떄문에 경로는 정확하게 적어줘야함 -->
+<mapper namespace="com.board.mapper.BoardMapper">
+	<!-- id=호출메소드 resultType=반환타입 -->
+	<select id="getBoardList" resultType="com.board.entity.Board">
+		select * from myboard order by idx desc
+	</select>
+	
+	<insert id="boardInsert" parameterType="com.board.entity.Board">
+		insert into myboard(title,content,writer)
+		values(#{title},#{content},#{writer})
+	</insert>
+	
+	<select id="getBoard" resultType="com.board.entity.Board">
+		select * from myboard where idx=#{idx}
+	</select>
+	
+	<delete id="boardDelete">
+		delete from myboard where idx=#{idx}
+	</delete>
+	
+	<update id="boardUpdate" parameterType="com.board.entity.Board">
+		update myboard set title=#{title}, content=#{content}
+		where idx=#{idx}
+	</update>
+
+</mapper>
