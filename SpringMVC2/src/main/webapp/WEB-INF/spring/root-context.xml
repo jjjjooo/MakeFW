@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring" xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- 커넥션 풀을 위한 bean 생성, 커넥션 풀은 데이터베이스의 성능 향상을 위해 쓴다. 커넥션 스위칭 자원이 상당히 크기 때문에, 스레드 풀과 비슷한 형식으로 사용 -->
+	<!-- HikariConfig, 연걸정보 (멤버변수)들을 가지고 있는 클래스 -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/makefw?serverTimezone=UTC"/>
+		<property name="username" value="root"/>
+		<property name="password" value="1234"/>
+		</bean> 
+	 
+	<!-- HikariDataSource(Connection POOL을 만드는 역할을 한다) -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	
+	<!-- Mapper interface들을 메모리에 올리는 방법(scan) -->
+	<!-- Scan을 하는 이유는 필요한 맵핑을 하여 메모리 효율을 올리기 위해서 -->
+	<mybatis-spring:scan base-package="com.board.mapper"/>
+	
+	<!-- BoardMapper interface의 구현클래스 생성
+	SqlSessionFactoryBean(SQL을 실행하는 API) -->
+	<!-- 얘는 커넥션풀을 알고 있어야하기 때문에 ref를 하고 있음 -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+</beans>
