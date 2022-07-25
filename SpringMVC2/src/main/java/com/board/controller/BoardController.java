@@ -32,4 +32,36 @@ public class BoardController {
 		List<Board> list = mapper.getBoardList();
 		return list; // JSON 리턴 
 	}
-}
+	
+	@RequestMapping("/boardInsert")
+	public @ResponseBody void boardInsert(Board dto) {
+		
+		mapper.boardInsert(dto);
+	}
+	
+	@RequestMapping("/boardDelete")
+	public @ResponseBody void boardDelete(@RequestParam("idx") int idx) {
+		
+		mapper.boardDelete(idx);
+	}
+	
+	@RequestMapping("/boardUpdate")
+	public @ResponseBody void boardUpdate(Board dto) {
+		System.out.println("게시글 수정");
+		mapper.boardUpdate(dto);
+	}
+	
+	@RequestMapping("/boardContent")
+	public @ResponseBody Board boardContent(@RequestParam("idx") int idx) {
+		
+		Board dto = mapper.getBoard(idx);
+		return dto;
+	}
+	
+	@RequestMapping("/boardCnt")
+	public @ResponseBody Board BoardCnt(@RequestParam("idx") int idx) {
+		mapper.boardCnt(idx);
+		Board dto = mapper.getBoard(idx);
+		return dto;
+	}
+}	
