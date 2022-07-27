@@ -1,25 +1,28 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+	pageEncoding="UTF-8"%>
+
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
+<meta charset="UTF-8">
 <!-- 부트스트랩 CDN -->
-	<meta name="viewport" content="width=device-width, initial-scale=1">
- 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
- 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
- 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
- 	<script type="text/javascript">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
 	 	$(document).ready(function(){
 	 		loadList();
 	 	});
 	 	function loadList(){ 
 	 		//서버와 통신 : 게시판 리스트 가져오기
 	 		$.ajax({
-	 			url:"boardList",
+	 			url:"board/all",
 	 			type:"get",
 	 			dataType:"json",
 	 			success:makeView,  //콜백함수
@@ -83,7 +86,7 @@
 	 		var formData=$("#frm").serialize();//직렬화
 	 		
 	 		$.ajax({
-	 			url:"boardInsert",
+	 			url:"board/new",
 	 			type:"post",
 	 			data:formData,
 	 			success: loadList,
@@ -98,9 +101,8 @@
 	 			$("#ta"+idx).attr("readonly",true)
 				
 	 			$.ajax({
-	 			url:"boardContent",
+	 			url:"board/"+idx,
 	 			type:"get",
-	 			data:{"idx":idx},
 	 			success: function(data){
 	 				$("#ta"+idx).val(data.content);
 	 			},
@@ -110,9 +112,8 @@
 	 		}else{
 	 			$("#c"+idx).css("display","none");
 	 			$.ajax({
-		 			url:"boardCnt",
+		 			url:"board/cnt/"+idx,
 		 			type:"get",
-		 			data:{"idx":idx},
 		 			dataTyep:"json",
 		 			success: function(data){
 		 				$("#cnt"+idx).text(data.count);
@@ -123,9 +124,8 @@
 	 	}
 	 	function goDelete(idx){
 	 		$.ajax({
-	 			url : "boardDelete", // board/idx
-	 			type : "get",
-	 			data : {"idx":idx},
+	 			url : "board/"+idx, // board/idx
+	 			type : "delete",
 	 			success : loadList,
 	 			error : function(){ alert("error");}
 	 		});
@@ -134,10 +134,10 @@
 	 	function goUpdateForm(idx){
 	 		$("#ta"+idx).attr("readonly",false);
 	 		var title=$("#t"+idx).text();
-	 		var newInput="<input type='text' id='newTitle"+obj.idx+"'cclass='form-control' value=':"+title+"'/>";
+	 		var newInput="<input type='text' id='newTitle"+idx+"' class='form-control' value=':"+title+"'/>";
 	 		$("#t"+idx).html(newInput);
 	 		
-	 		var newButton="<button onclick='goUpdate("+obj.idx+")'>등록</button>";
+	 		var newButton="<button onclick='goUpdate("+idx+")'>등록</button>";
 	 		$("#updateBtn"+idx).html(newButton);
 	 	}
 	 	
@@ -145,55 +145,57 @@
 	 		var title = $("#newTitle"+idx).val();
 	 		var content =$("#ta"+idx).val();
 	 		$.ajax({
-	 			url:"boardUpdate",
-	 			type:"post",
-	 			data:{"idx":idx, "title": title, "content":content},
+	 			url:"board/update",
+	 			type:"put",
+	 			contentType:'application/json;charset=utf-8',
+	 			data:JSON.stringify({"idx":idx, "title": title, "content":content}),
 	 			success: loadList,
 	 			error:function(){alert("error");}
 	 		});
 	 	}
-	 	
-		
-	 
-	 	
-	 	
 	 	
  	</script>
 <title>Insert title here</title>
 </head>
 <body>
 	<div class="container">
-	  <h2>제목</h2>
-	  <div class="panel panel-default">
-	  	<div class="panel-heading">BOARD</div>
-	    <div class="panel-body" id="view">바디</div>
-	    <div class="panel-body" id="wrform" style="display: none">글쓰기
-	       <form id="frm">
-	    	<table class="table" >
-	    		<tr>
-	    			<td>제목</td>
-	    			<td><input type="text"  id="title" name="title" class="form-control"/></td>
-	    		</tr>
-	    		<tr>
-	    			<td>작성자</td>
-	    			<td><input type="text" id="writer" name="writer" class="form-control"/></td>
-	    		</tr>
-	    		<tr>
-	    			<td>내용</td>
-	    			<td><textarea row="7" id="content" name="content" class="form-control"></textarea></td>
-	    		</tr>
-	    		<tr>
-	    			<td colspan="2" align="center">
-	    				<button type="button" onclick="goInsert()" class="btn btn-success btn-sm">등록</button>
-	    				<button type="reset" id="clear" class=" btn btn-cancle btn-sm">취소</button>
-	    				<button type="button" onclick="goList()" class=" btn btn-cancle btn-sm">목록</button>
-	    			</td>
-	    		</tr>
-	    	</table>
-	       </form>
-	    </div>
-	    <div class="panel-footer">푸터</div>
-	  </div>
+		<h2>리스트</h2>
+		<div class="panel panel-default">
+			<div class="panel-heading">BOARD</div>
+			<div class="panel-body" id="view">바디</div>
+			<div class="panel-body" id="wrform" style="display: none">
+				글쓰기
+				<form id="frm">
+					<table class="table">
+						<tr>
+							<td>제목</td>
+							<td><input type="text" id="title" name="title"
+								class="form-control" /></td>
+						</tr>
+						<tr>
+							<td>작성자</td>
+							<td><input type="text" id="writer" name="writer"
+								class="form-control" /></td>
+						</tr>
+						<tr>
+							<td>내용</td>
+							<td><textarea row="7" id="content" name="content"
+									class="form-control"></textarea></td>
+						</tr>
+						<tr>
+							<td colspan="2" align="center">
+								<button type="button" onclick="goInsert()"
+									class="btn btn-success btn-sm">등록</button>
+								<button type="reset" id="clear" class=" btn btn-cancle btn-sm">취소</button>
+								<button type="button" onclick="goList()"
+									class=" btn btn-cancle btn-sm">목록</button>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+			<div class="panel-footer">푸터</div>
+		</div>
 	</div>
 </body>
 </html>
